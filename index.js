@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 
 const tokens = [
-  "token",
+  "ODgyOTk0NTg4MTI4NzcyMTM2.GOEx-m._eIYAJQHR0U3zUq7ZBNxl75Tn2sepqwtHt1gho",
 ];
 
 const targetUsers = [

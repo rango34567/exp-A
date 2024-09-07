@@ -13,16 +13,18 @@ const targetUsers = [
   "ايدي الشخص"
 ];
 const targetChannels = [
-  "الروم"
+  "ايدي الروم"
 ];
+
+const messageId = "ايدي الرسالة لي بيبدا منها الرد";
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
 const typingDelayForLongMessages = 2000;
 const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600 + 1)) + 2600;
 
 const randomReplies = [
-  'مرحبا',
-
+  'شقمك',
+// هلا لا تنسى تضيف سباتك
 ];
 
 const longMessageReplies = [
@@ -31,14 +33,22 @@ const longMessageReplies = [
 
 const specialWordTriggers = {
   ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
-  
-  "نقطة": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك']
+  "نقطة": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
+};
+
+const spamResponses = {
+  cooldownReply: 'يبن السبامرجية شتسوي',
+  replies: [
+    'نيجمك توقف',
+    'قفز امك للسبام',
+    'جن جنون امك لو شنو'
+  ]
 };
 
 const spamTriggerCount = 3;
-const spamCooldownReply = 'يبن السبامرجية شتسوي';
 
 let userSpamCount = {};
+let messageHistory = {};
 
 const clients = tokens.map(token => {
   const client = new Client({
@@ -52,28 +62,27 @@ const clients = tokens.map(token => {
   client.on('messageCreate', async (message) => {
     if (!targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
 
-    if (!userSpamCount[message.author.id]) userSpamCount[message.author.id] = 0;
-    const messageContent = message.content.toLowerCase();
+    const messageContent = message.content.trim().toLowerCase();
 
-    const specialWord = Object.keys(specialWordTriggers).find(word => messageContent.includes(word));
-    if (specialWord) {
-      userSpamCount[message.author.id]++;
+    if (!messageHistory[messageContent]) messageHistory[messageContent] = 0;
+    messageHistory[messageContent]++;
 
-      if (userSpamCount[message.author.id] >= spamTriggerCount) {
-        await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords()));
-        await message.reply(spamCooldownReply);
-        userSpamCount[message.author.id] = 0;
-      } else {
-        await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords()));
-        const reply = specialWordTriggers[specialWord][Math.floor(Math.random() * specialWordTriggers[specialWord].length)];
-        await message.reply(reply);
-      }
+    if (messageHistory[messageContent] >= spamTriggerCount) {
+      await new Promise(resolve => setTimeout(resolve, delayBetweenReplies()));
+      await message.reply(spamResponses.replies[Math.floor(Math.random() * spamResponses.replies.length)]);
+      messageHistory[messageContent] = 0;
       return;
     }
 
-    userSpamCount[message.author.id] = 0;
+    const specialWord = Object.keys(specialWordTriggers).find(word => messageContent === word);
+    if (specialWord) {
+      await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords()));
+      const reply = specialWordTriggers[specialWord][Math.floor(Math.random() * specialWordTriggers[specialWord].length)];
+      await message.reply(reply);
+      return;
+    }
 
-    if (message.content.length > 20) {
+    if (messageContent.length >= 38) { 
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
@@ -90,7 +99,7 @@ const clients = tokens.map(token => {
 
       if (error.code === 429) {
         console.log('Rate limited! Waiting before retrying...');
-        await new Promise(resolve => setTimeout(resolve, 1000)); 
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
   });

@@ -6,14 +6,14 @@ const app = express();
 const server = http.createServer(app);
 
 const tokens = [
-  "يور توكن",
+  "token",
 ];
 
 const targetUsers = [
-  "ايدي الميسيو هذا لي بتحويه"
+  "1281223777253986412"
 ];
 const targetChannels = [
-  "ايدي الروم"
+  "1282028190637756550"
 ];
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
@@ -21,7 +21,7 @@ const typingDelayForLongMessages = 2000;
 const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600 + 1)) + 2600;
 
 const randomReplies = [
-  'شقمك',
+  'مرحبا',
 
 ];
 

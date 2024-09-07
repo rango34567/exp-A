@@ -6,14 +6,14 @@ const app = express();
 const server = http.createServer(app);
 
 const tokens = [
-  "ODgyOTk0NTg4MTI4NzcyMTM2.GOEx-m._eIYAJQHR0U3zUq7ZBNxl75Tn2sepqwtHt1gho",
+  "توكنك",
 ];
 
 const targetUsers = [
-  "1281223777253986412"
+  "ايدي الشخص"
 ];
 const targetChannels = [
-  "1282028190637756550"
+  "الروم"
 ];
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;

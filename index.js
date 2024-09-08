@@ -6,16 +6,14 @@ const app = express();
 const server = http.createServer(app);
 
 const tokens = [
-  "توكنك",
+  "توكنك"
 ];
-
 const targetUsers = [
   "ايدي الشخص"
 ];
-const targetChannels = [
+const targetchannels = [
   "ايدي الروم"
 ];
-
 const messageId = "ايدي الرسالة لي بيبدا منها الرد";
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
@@ -23,57 +21,29 @@ const typingDelayForLongMessages = 2000;
 const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600 + 1)) + 2600;
 
 const randomReplies = [
-  'شقمك',
-// هلا لا تنسى تضيف سباتك
+  'شقمك'
 ];
-
 const longMessageReplies = [
-  'لوحها و خشيها بكس كسمك',
+  'لوحها و خشيها بكس كسمك'
 ];
-
-const specialWordTriggers = {
-  ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
-  "نقطة": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
-};
-
-const spamResponses = {
-  cooldownReply: 'يبن السبامرجية شتسوي',
-  replies: [
-    'نيجمك توقف',
-    'قفز امك للسبام',
-    'جن جنون امك لو شنو'
-  ]
-};
-
+const specialWordTriggers = { ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'], "نقطة": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'] };
+const spamResponses = { cooldownReply: 'يبن السبامرجية شتسوي', replies: ['نيجمك توقف', 'قفز امك للسبام', 'جن جنون امك لو شنو'] };
 const spamTriggerCount = 3;
 
 let userSpamCount = {};
 let messageHistory = {};
 
 const clients = tokens.map(token => {
-  const client = new Client({
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
-  });
+  const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
-  client.once('ready', async () => {
+  client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
-    
-    const channel = client.channels.cache.get(targetChannels[0]);
-    if (channel) {
-      let messages = await channel.messages.fetch({ after: messageId, limit: 100 });
-      messages = messages.reverse();
-      for (const message of messages.values()) {
-        await handleMessage(message);
-      }
-    }
   });
 
   client.on('messageCreate', async (message) => {
+    if (message.author.id === client.user.id) return;
     if (!targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
-    await handleMessage(message);
-  });
 
-  async function handleMessage(message) {
     const messageContent = message.content.trim().toLowerCase();
 
     if (!messageHistory[messageContent]) messageHistory[messageContent] = 0;
@@ -94,7 +64,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    if (messageContent.length > 35) {
+    if (messageContent.length >= 35) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
@@ -108,13 +78,12 @@ const clients = tokens.map(token => {
       console.log(`Replied to message: ${replyMessage.content}`);
     } catch (error) {
       console.error(`Error replying to message: ${error}`);
-
       if (error.code === 429) {
         console.log('Rate limited! Waiting before retrying...');
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
-  }
+  });
 
   client.on('error', (error) => {
     console.error('Client encountered an error:', error);
@@ -125,20 +94,14 @@ const clients = tokens.map(token => {
 });
 
 app.get('/', (req, res) => {
-  res.send(`
-    <body>
-      <center><h1>كسمك يا علاوي</h1></center>
-    </body>
-  `);
+  res.send(`<body><center><h1>كسمك يا علاوي</h1></center></body>`);
 });
 
 app.get('/webview', (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.send(`
     <html>
-      <head>
-        <title>كسمك يا لحن</title>
-      </head>
+      <head><title>كسمك يا لحن</title></head>
       <body style="margin: 0; padding: 0;">
         <iframe width="100%" height="100%" src="https://axocoder.vercel.app/" frameborder="0" allowfullscreen></iframe>
       </body>

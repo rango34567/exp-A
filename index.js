@@ -55,13 +55,25 @@ const clients = tokens.map(token => {
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
   });
 
-  client.once('ready', () => {
+  client.once('ready', async () => {
     console.log(`Logged in as ${client.user.tag}`);
+    
+    const channel = client.channels.cache.get(targetChannels[0]);
+    if (channel) {
+      let messages = await channel.messages.fetch({ after: messageId, limit: 100 });
+      messages = messages.reverse();
+      for (const message of messages.values()) {
+        await handleMessage(message);
+      }
+    }
   });
 
   client.on('messageCreate', async (message) => {
     if (!targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
+    await handleMessage(message);
+  });
 
+  async function handleMessage(message) {
     const messageContent = message.content.trim().toLowerCase();
 
     if (!messageHistory[messageContent]) messageHistory[messageContent] = 0;
@@ -82,7 +94,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    if (messageContent.length >= 38) { 
+    if (messageContent.length > 35) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
@@ -102,7 +114,7 @@ const clients = tokens.map(token => {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
-  });
+  }
 
   client.on('error', (error) => {
     console.error('Client encountered an error:', error);

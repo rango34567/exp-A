@@ -1,9 +1,6 @@
 const { Client, Intents } = require('discord.js-selfbot-v13');
 const express = require('express');
-const http = require('http');
-
 const app = express();
-const server = http.createServer(app);
 
 const tokens = [
   "توكنك"
@@ -11,7 +8,7 @@ const tokens = [
 const targetUsers = [
   "ايدي الشخص"
 ];
-const targetchannels = [
+const targetChannels = [
   "ايدي الروم"
 ];
 const messageId = "ايدي الرسالة لي بيبدا منها الرد";
@@ -93,23 +90,8 @@ const clients = tokens.map(token => {
   return client;
 });
 
-app.get('/', (req, res) => {
-  res.send(`<body><center><h1>كسمك يا علاوي</h1></center></body>`);
-});
+const port = process.env.PORT || 3000;
 
-app.get('/webview', (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
-  res.send(`
-    <html>
-      <head><title>كسمك يا لحن</title></head>
-      <body style="margin: 0; padding: 0;">
-        <iframe width="100%" height="100%" src="https://axocoder.vercel.app/" frameborder="0" allowfullscreen></iframe>
-      </body>
-    </html>
-  `);
-});
-
-server.listen(8080, () => {
-  console.log("I'm ready to nik ksm 3lawi..!");
-  console.log("I'm ready to nik ksm l7n..!");
+server.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 });

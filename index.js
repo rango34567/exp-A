@@ -72,8 +72,6 @@ const clients = tokens.map(token => {
     processedMessages.add(message.id);
 
     const messageContent = message.content.trim().toLowerCase();
-    const wordCount = messageContent.split(/\s+/).length;
-    const lineCount = messageContent.split('\n').length;
 
     if (!messageHistory[messageContent]) messageHistory[messageContent] = 0;
     messageHistory[messageContent]++;
@@ -85,7 +83,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    const specialWord = Object.keys(specialWordTriggers).find(word => messageContent === word);
+    const specialWord = Object.keys(specialWordTriggers).find(word => messageContent.includes(word));
     if (specialWord) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords()));
       const reply = specialWordTriggers[specialWord][Math.floor(Math.random() * specialWordTriggers[specialWord].length)];
@@ -93,7 +91,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    if (wordCount >= 40 || lineCount > 3) {
+    if (messageContent.split(' ').length >= 40) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
@@ -111,14 +109,18 @@ const clients = tokens.map(token => {
     }
   });
 
-  client.on('error', (error) => {});
+  client.on('error', (error) => {
+    console.error('Client encountered an error:', error);
+  });
 
   client.login(token);
   return client;
 });
 
 const port = process.env.PORT || 3000;
-server.listen(port, () => {});
+server.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});
 
 app.get('/', (req, res) => {
   res.send(`<body><center><h1>Bot is running</h1></center></body>`);

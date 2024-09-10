@@ -1,8 +1,9 @@
 // كسمك مقدما
 // دخول امك شحذا على البروجكت
-// نشاله تدي زبي يبن القحاب
+// تدي زبي يبن القحاب
 // لو انت لحن فاااا كسمك
 // و لو كسمك دارك فا كسمك plus 2
+
 
 const { Client, Intents } = require('discord.js-selfbot-v13');
 const express = require('express');
@@ -10,11 +11,10 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 
-const tokens = [
-  "توكنك"
-];
+const tokens = ["توكنك"];
 const targetUsers = ["ايدي الشخص"];
 const targetChannels = ["ايدي الروم"];
+const messageId = "ايدي الرسالة";
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
 const typingDelayForLongMessages = 2000;
@@ -22,7 +22,7 @@ const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600
 
 const randomReplies = [
   'شقمك'
-]; // حط سبات امك يبن المازوخية
+]; // لا تنسى سبات كس كسمك
 const longMessageReplies = ['لوحها و خشيها بكس كسمك'];
 const specialWordTriggers = {
   ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
@@ -46,7 +46,9 @@ const clients = tokens.map(token => {
     const userMessages = messages.filter(msg => msg.author.id === client.user.id);
     
     userMessages.forEach(message => {
-      processedMessages.add(message.id);
+      if (message.id === messageId) {
+        processedMessages.add(message.id);
+      }
     });
 
     setInterval(async () => {
@@ -122,3 +124,4 @@ server.listen(port, () => {});
 app.get('/', (req, res) => {
   res.send(`<body><center><h1>Bot is running</h1></center></body>`);
 });
+

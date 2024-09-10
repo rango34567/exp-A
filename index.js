@@ -1,9 +1,6 @@
 // كسمك مقدما
 // دخول امك شحذا على البروجكت
 // تدي زبي يبن القحاب
-// لو انت لحن فاااا كسمك
-// و لو كسمك دارك فا كسمك plus 2
-
 
 const { Client, Intents } = require('discord.js-selfbot-v13');
 const express = require('express');
@@ -22,7 +19,7 @@ const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600
 
 const randomReplies = [
   'شقمك'
-]; // لا تنسى سبات كس كسمك
+];
 const longMessageReplies = ['لوحها و خشيها بكس كسمك'];
 const specialWordTriggers = {
   ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
@@ -75,6 +72,8 @@ const clients = tokens.map(token => {
     processedMessages.add(message.id);
 
     const messageContent = message.content.trim().toLowerCase();
+    const wordCount = messageContent.split(/\s+/).length;
+    const lineCount = messageContent.split('\n').length;
 
     if (!messageHistory[messageContent]) messageHistory[messageContent] = 0;
     messageHistory[messageContent]++;
@@ -94,7 +93,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    if (messageContent.length >= 35) {
+    if (wordCount >= 40 || lineCount > 3) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
@@ -124,4 +123,3 @@ server.listen(port, () => {});
 app.get('/', (req, res) => {
   res.send(`<body><center><h1>Bot is running</h1></center></body>`);
 });
-

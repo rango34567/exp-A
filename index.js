@@ -5,8 +5,8 @@ const app = express();
 const server = http.createServer(app);
 
 const tokens = ["توكنك"];
-const targetUsers = ["ايدي الشخص"];
-const targetChannels = ["ايدي الروم"];
+const targetUsers = ["1277555762062950444"];
+const targetChannels = ["1282042967284121621"];
 const messageId = "ايدي الرسالة";
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;

@@ -1,20 +1,20 @@
+// كسمك مقدما
+// دخول امك شحذا على البروجكت
+// نشاله تدي زبي يبن القحاب
+// لو انت لحن فاااا كسمك
+// و لو كسمك دارك فا كسمك plus 2
+
 const { Client, Intents } = require('discord.js-selfbot-v13');
 const express = require('express');
 const http = require('http');
-
 const app = express();
 const server = http.createServer(app);
 
 const tokens = [
   "توكنك"
 ];
-const targetUsers = [
-  "ايدي الشخص"
-];
-const targetChannels = [
-  "ايدي الروم"
-];
-const messageId = "ايدي الرسالة لي بيبدا منها الرد";
+const targetUsers = ["ايدي الشخص"];
+const targetChannels = ["ايدي الروم"];
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
 const typingDelayForLongMessages = 2000;
@@ -22,27 +22,55 @@ const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600
 
 const randomReplies = [
   'شقمك'
-];
-const longMessageReplies = [
-  'لوحها و خشيها بكس كسمك'
-];
-const specialWordTriggers = { ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'], "نقطة": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'] };
-const spamResponses = { cooldownReply: 'يبن السبامرجية شتسوي', replies: ['نيجمك توقف', 'قفز امك للسبام', 'جن جنون امك لو شنو'] };
+]; // حط سبات امك يبن المازوخية
+const longMessageReplies = ['لوحها و خشيها بكس كسمك'];
+const specialWordTriggers = {
+  ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
+  "نقطة": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك']
+};
+const spamResponses = {
+  cooldownReply: 'يبن السبامرجية شتسوي',
+  replies: ['نيجمك توقف', 'قفز امك للسبام', 'جن جنون امك لو شنو']
+};
 const spamTriggerCount = 3;
-
-let userSpamCount = {};
 let messageHistory = {};
+let processedMessages = new Set();
 
 const clients = tokens.map(token => {
   const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
-  client.once('ready', () => {
-    console.log(`Logged in as ${client.user.tag}`);
+  client.once('ready', async () => {
+    const channel = await client.channels.fetch(targetChannels[0]);
+    const messages = await channel.messages.fetch({ limit: 100 });
+
+    const userMessages = messages.filter(msg => msg.author.id === client.user.id);
+    
+    userMessages.forEach(message => {
+      processedMessages.add(message.id);
+    });
+
+    setInterval(async () => {
+      for (let message of userMessages.values()) {
+        if (processedMessages.has(message.id)) continue;
+        processedMessages.add(message.id);
+
+        try {
+          const randomReply = randomReplies[Math.floor(Math.random() * randomReplies.length)];
+          await message.reply(randomReply);
+        } catch (error) {
+          if (error.code === 429) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      }
+    }, 3000);
   });
 
   client.on('messageCreate', async (message) => {
-    if (message.author.id === client.user.id) return;
-    if (!targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
+    if (message.author.id === client.user.id || !targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
+
+    if (processedMessages.has(message.id)) return;
+    processedMessages.add(message.id);
 
     const messageContent = message.content.trim().toLowerCase();
 
@@ -74,27 +102,23 @@ const clients = tokens.map(token => {
     try {
       await new Promise(resolve => setTimeout(resolve, delayBetweenReplies()));
       const randomReply = randomReplies[Math.floor(Math.random() * randomReplies.length)];
-      const replyMessage = await message.reply(randomReply);
-      console.log(`Replied to message: ${replyMessage.content}`);
+      await message.reply(randomReply);
     } catch (error) {
-      console.error(`Error replying to message: ${error}`);
       if (error.code === 429) {
-        console.log('Rate limited! Waiting before retrying...');
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
   });
 
-  client.on('error', (error) => {
-    console.error('Client encountered an error:', error);
-  });
+  client.on('error', (error) => {});
 
   client.login(token);
   return client;
 });
 
 const port = process.env.PORT || 3000;
+server.listen(port, () => {});
 
-server.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+app.get('/', (req, res) => {
+  res.send(`<body><center><h1>Bot is running</h1></center></body>`);
 });

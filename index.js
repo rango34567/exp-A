@@ -1,7 +1,3 @@
-// كسمك مقدما
-// دخول امك شحذا على البروجكت
-// تدي زبي يبن القحاب
-
 const { Client, Intents } = require('discord.js-selfbot-v13');
 const express = require('express');
 const http = require('http');
@@ -17,9 +13,7 @@ const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) 
 const typingDelayForLongMessages = 2000;
 const typingDelayForSpecialWords = () => Math.floor(Math.random() * (5000 - 2600 + 1)) + 2600;
 
-const randomReplies = [
-  'شقمك'
-];
+const randomReplies = ['شقمك'];
 const longMessageReplies = ['لوحها و خشيها بكس كسمك'];
 const specialWordTriggers = {
   ".": ['نقطة بكسمك', 'كسمك يبن الشاكة بحشي النقطة بكصمك'],
@@ -66,7 +60,8 @@ const clients = tokens.map(token => {
   });
 
   client.on('messageCreate', async (message) => {
-    if (message.author.id === client.user.id || !targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
+    if (message.author.id === client.user.id) return;
+    if (!targetUsers.includes(message.author.id) || !targetChannels.includes(message.channel.id)) return;
 
     if (processedMessages.has(message.id)) return;
     processedMessages.add(message.id);
@@ -83,7 +78,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    const specialWord = Object.keys(specialWordTriggers).find(word => messageContent.includes(word));
+    const specialWord = Object.keys(specialWordTriggers).find(word => messageContent === word);
     if (specialWord) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords()));
       const reply = specialWordTriggers[specialWord][Math.floor(Math.random() * specialWordTriggers[specialWord].length)];
@@ -91,7 +86,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    if (messageContent.split(' ').length >= 40) {
+    if (messageContent.length >= 40) { 
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
@@ -109,18 +104,14 @@ const clients = tokens.map(token => {
     }
   });
 
-  client.on('error', (error) => {
-    console.error('Client encountered an error:', error);
-  });
+  client.on('error', (error) => {});
 
   client.login(token);
   return client;
 });
 
 const port = process.env.PORT || 3000;
-server.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
+server.listen(port, () => {});
 
 app.get('/', (req, res) => {
   res.send(`<body><center><h1>Bot is running</h1></center></body>`);

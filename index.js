@@ -4,10 +4,10 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 
-const tokens = ["توكنك"];
-const targetUsers = ["1277555762062950444"];
-const targetChannels = ["1282042967284121621"];
-const messageId = "ايدي الرسالة";
+const tokens = ["توكتك"];
+const targetUsers = ["ايدي الشخص"];
+const targetChannels = ["الروم"];
+const messageId = "الرسالة";
 
 const delayBetweenReplies = () => Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
 const typingDelayForLongMessages = 2000;
@@ -34,17 +34,26 @@ const clients = tokens.map(token => {
     const channel = await client.channels.fetch(targetChannels[0]);
     const messages = await channel.messages.fetch({ limit: 100 });
 
-    const userMessages = messages.filter(msg => msg.author.id === client.user.id);
-    
+    const userMessages = messages.filter(msg => 
+      msg.author.id !== client.user.id && 
+      targetUsers.includes(msg.author.id) &&
+      targetChannels.includes(msg.channel.id)
+    );
+
+    let startProcessing = false;
+
     userMessages.forEach(message => {
       if (message.id === messageId) {
+        startProcessing = true;
+      }
+      if (startProcessing) {
         processedMessages.add(message.id);
       }
     });
 
     setInterval(async () => {
       for (let message of userMessages.values()) {
-        if (processedMessages.has(message.id)) continue;
+        if (!processedMessages.has(message.id)) continue;
         processedMessages.add(message.id);
 
         try {
@@ -86,7 +95,7 @@ const clients = tokens.map(token => {
       return;
     }
 
-    if (messageContent.length >= 40) { 
+    if (messageContent.length >= 90) {
       await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);

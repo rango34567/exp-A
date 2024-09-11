@@ -24,8 +24,10 @@ const spamResponses = {
   replies: ['نيجمك توقف', 'قفز امك للسبام', 'جن جنون امك لو شنو']
 };
 const spamTriggerCount = 3;
+let spamCooldown = 5; 
 let messageHistory = {};
 let processedMessages = new Set();
+let lastSpamReply = null;
 
 const clients = tokens.map(token => {
   const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
@@ -34,13 +36,13 @@ const clients = tokens.map(token => {
     const channel = await client.channels.fetch(targetChannels[0]);
     const messages = await channel.messages.fetch({ limit: 100 });
 
+    let startProcessing = false;
+    
     const userMessages = messages.filter(msg => 
       msg.author.id !== client.user.id && 
       targetUsers.includes(msg.author.id) &&
       targetChannels.includes(msg.channel.id)
     );
-
-    let startProcessing = false;
 
     userMessages.forEach(message => {
       if (message.id === messageId) {
@@ -58,6 +60,8 @@ const clients = tokens.map(token => {
 
         try {
           const randomReply = randomReplies[Math.floor(Math.random() * randomReplies.length)];
+          await client.channels.cache.get(targetChannels[0]).sendTyping(); 
+          await new Promise(resolve => setTimeout(resolve, delayBetweenReplies()));
           await message.reply(randomReply);
         } catch (error) {
           if (error.code === 429) {
@@ -81,29 +85,37 @@ const clients = tokens.map(token => {
     messageHistory[messageContent]++;
 
     if (messageHistory[messageContent] >= spamTriggerCount) {
-      await new Promise(resolve => setTimeout(resolve, delayBetweenReplies()));
-      await message.reply(spamResponses.replies[Math.floor(Math.random() * spamResponses.replies.length)]);
+      if (lastSpamReply === spamResponses.replies[Math.floor(Math.random() * spamResponses.replies.length)]) {
+        spamTriggerCount = 6; 
+      }
+      lastSpamReply = spamResponses.replies[Math.floor(Math.random() * spamResponses.replies.length)];
+      await client.channels.cache.get(targetChannels[0]).sendTyping(); 
+      await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages)); 
+      await message.reply(lastSpamReply);
       messageHistory[messageContent] = 0;
       return;
     }
 
     const specialWord = Object.keys(specialWordTriggers).find(word => messageContent === word);
     if (specialWord) {
-      await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords()));
+      await client.channels.cache.get(targetChannels[0]).sendTyping(); 
+      await new Promise(resolve => setTimeout(resolve, typingDelayForSpecialWords())); 
       const reply = specialWordTriggers[specialWord][Math.floor(Math.random() * specialWordTriggers[specialWord].length)];
       await message.reply(reply);
       return;
     }
 
-    if (messageContent.length >= 90) {
-      await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));
+    if (messageContent.length >= 100) { 
+      await client.channels.cache.get(targetChannels[0]).sendTyping(); 
+      await new Promise(resolve => setTimeout(resolve, typingDelayForLongMessages));  
       const reply = longMessageReplies[Math.floor(Math.random() * longMessageReplies.length)];
       await message.reply(reply);
       return;
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, delayBetweenReplies()));
+      await client.channels.cache.get(targetChannels[0]).sendTyping(); 
+      await new Promise(resolve => setTimeout(resolve, delayBetweenReplies()));  
       const randomReply = randomReplies[Math.floor(Math.random() * randomReplies.length)];
       await message.reply(randomReply);
     } catch (error) {
